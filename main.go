@@ -7,11 +7,27 @@ import (
 )
 
 var list container.LinkedList
+var status string = "START"
 
 func main() {
-	fmt.Println("START")
 	initFillList()
+	start()
+}
 
+func start() {
+	for {
+		// Display
+		fmt.Println("Hello, program start")
+		// Get Input
+		var choice string
+		fmt.Print("> ")
+		fmt.Scan(&choice)
+		// Process
+		if choice == "exit" {
+			break
+		}
+		// Repeat
+	}
 }
 
 func initFillList() {
