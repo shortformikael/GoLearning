@@ -5,11 +5,10 @@ import (
 )
 
 type Menu struct {
-	Status MenuOption
-	Items  [5]MenuOption
+	Items [5]MenuOption
 }
 
-func (m Menu) Print() {
+func (m Menu) PrintItems() {
 	for i := 0; i < len(m.Items); i++ {
 		fmt.Printf("%d: %s \n", i+1, m.Items[i])
 	}
@@ -17,7 +16,6 @@ func (m Menu) Print() {
 
 func NewMenu() *Menu {
 	return &Menu{
-		Status: Start,
 		Items: [5]MenuOption{
 			Start,
 			Add,

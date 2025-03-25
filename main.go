@@ -12,7 +12,8 @@ import (
 )
 
 var reader *bufio.Reader = bufio.NewReader(os.Stdin)
-var menu *models.Menu = models.NewMenu()
+var menu_Start *models.Menu = models.NewMenu()
+var menuStatus models.MenuOption = models.Start
 
 func main() {
 	fmt.Println("=== START ===")
@@ -22,13 +23,32 @@ func main() {
 
 func Run() {
 	for {
-		fmt.Printf("Current Status: %s \n", menu.Status)
-		if string(menu.Status) == "EXIT" {
+		fmt.Printf("Current Status: %s \n", menuStatus)
+
+		if string(menuStatus) == "EXIT" {
 			break
 		}
-		menu.Print()
+		printMenu()
 		SelectChoice(Choose())
 	}
+}
+
+func printMenu() {
+	switch string(menuStatus) {
+	case string(models.Start):
+		menu_Start.PrintItems()
+	case string(models.Add):
+		//ADD
+	case string(models.Delete):
+		//DELETE
+	case string(models.View):
+		//VIEW
+	case string("EXIT"):
+		//EXIT
+	default:
+		//default
+	}
+
 }
 
 func Choose() interface{} {
@@ -36,27 +56,41 @@ func Choose() interface{} {
 	num, err := strconv.Atoi(input)
 	if err != nil {
 		return strings.ToUpper(input)
-	} else if 1 <= num && num <= len(menu.Items) {
+	} else if 1 <= num && num <= len(menu_Start.Items) {
 		return num
 	}
 	return "Out of bounds ERROR" // Return invalid input
 }
 
 func SelectChoice(pChoice interface{}) {
-	pType := reflect.TypeOf(pChoice).Kind()
-	if pType == reflect.Int || pType == reflect.String {
-		switch pChoice := pChoice.(type) {
-		case int:
-			menu.Status = menu.Items[pChoice-1]
-		case string:
-			for item := range menu.Items {
-				if string(menu.Items[item]) == pChoice {
-					menu.Status = menu.Items[item]
+	switch string(menuStatus) {
+	case string(models.Start):
+		pType := reflect.TypeOf(pChoice).Kind()
+		if pType == reflect.Int || pType == reflect.String {
+			switch pChoice := pChoice.(type) {
+			case int:
+				menuStatus = menu_Start.Items[pChoice-1]
+			case string:
+				for item := range menu_Start.Items {
+					if string(menu_Start.Items[item]) == pChoice {
+						menuStatus = menu_Start.Items[item]
+					}
 				}
-			}
 
+			}
 		}
+	case string(models.Add):
+		//ADD
+	case string(models.Delete):
+		//DELETE
+	case string(models.View):
+		//VIEW
+	case string("EXIT"):
+		//EXIT
+	default:
+		//default
 	}
+
 }
 
 func ReadStdInput() string {
