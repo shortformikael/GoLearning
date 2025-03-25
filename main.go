@@ -12,7 +12,7 @@ import (
 )
 
 var reader *bufio.Reader = bufio.NewReader(os.Stdin)
-var menu *models.menu = models.NewMenu()
+var menu *models.Menu = models.NewMenu()
 
 func main() {
 	fmt.Println("=== START ===")
