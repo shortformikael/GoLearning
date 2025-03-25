@@ -48,15 +48,21 @@ func (l *LinkedList) PrintList() {
 	count := 1
 	current := l.head
 	for current != nil {
+		//fmt.Println(reflect.TypeOf(current.data))
 		switch c := current.data.(type) {
 		case string:
-			fmt.Printf("%d- %s \n", count, c)
-		case Menu:
-			fmt.Printf("%d- %s \n", count, c.Name)
+			fmt.Printf(" - %s \n", c)
+		case *Menu:
+			fmt.Printf(" -> %d. %s \n", count, c.Name)
+			count++
+		case *MenuItem:
+			fmt.Printf(" -> %d. %s \n", count, c.Name)
+			count++
+		case *LinkedList:
+			c.PrintList()
 		default:
-			fmt.Printf("%d- Unknown", count)
+			fmt.Printf(" - Unknown \n", count)
 		}
-		count++
 		current = current.next
 	}
 }
@@ -96,7 +102,7 @@ func (l *LinkedList) DeleteAt(n int) error {
 	return nil
 }
 
-func (l *LinkedList) Get(n int) (interface{}, error) {
+func (l *LinkedList) GetAt(n int) (interface{}, error) {
 	if 0 > n || n >= l.Length() {
 		return "", errors.New("INTERGER OUT OF BOUNDS")
 	}
@@ -107,6 +113,28 @@ func (l *LinkedList) Get(n int) (interface{}, error) {
 		}
 	}
 	return current.data, nil
+}
+
+func (l *LinkedList) Get(data string) (interface{}, error) {
+	current := l.head
+	for current != nil {
+		switch i := current.data.(type) {
+		case string:
+			if i == data {
+				return i, nil
+			}
+		case *Menu:
+			if i.Name == data {
+				return i, nil
+			}
+		case *MenuItem:
+			if i.Name == data {
+				return i, nil
+			}
+		}
+		current = current.next
+	}
+	return nil, errors.New("DOES NOT EXIST IN ARRAY")
 }
 
 func (l *LinkedList) Exists(s interface{}) bool {
@@ -132,9 +160,10 @@ func (l *LinkedList) Length() int {
 
 func (l *LinkedList) GetArray() []interface{} {
 	var rArray []interface{}
-	for i := 0; i < l.Length(); i++ {
-		item, _ := l.Get(i)
-		rArray = append(rArray, item)
+	current := l.head
+	for current.data != nil {
+		rArray = append(rArray, current.data)
+		current = current.next
 	}
 	return rArray
 }
