@@ -6,7 +6,7 @@ import (
 )
 
 type Node struct {
-	data string
+	data interface{}
 	next *Node
 }
 
@@ -14,7 +14,7 @@ type LinkedList struct {
 	head *Node
 }
 
-func (l *LinkedList) Append(data string) {
+func (l *LinkedList) Append(data interface{}) {
 	newNode := &Node{data: data}
 	if l.head == nil {
 		l.head = newNode
@@ -27,7 +27,7 @@ func (l *LinkedList) Append(data string) {
 	current.next = newNode
 }
 
-func (l *LinkedList) Prepend(data string) {
+func (l *LinkedList) Prepend(data interface{}) {
 	newNode := &Node{data: data, next: l.head}
 	l.head = newNode
 }
@@ -41,6 +41,23 @@ func (l *LinkedList) Print() {
 		} else {
 			return
 		}
+	}
+}
+
+func (l *LinkedList) PrintList() {
+	count := 1
+	current := l.head
+	for current != nil {
+		switch c := current.data.(type) {
+		case string:
+			fmt.Printf("%d- %s \n", count, c)
+		case Menu:
+			fmt.Printf("%d- %s \n", count, c.Name)
+		default:
+			fmt.Printf("%d- Unknown", count)
+		}
+		count++
+		current = current.next
 	}
 }
 
@@ -79,7 +96,7 @@ func (l *LinkedList) DeleteAt(n int) error {
 	return nil
 }
 
-func (l *LinkedList) Get(n int) (string, error) {
+func (l *LinkedList) Get(n int) (interface{}, error) {
 	if 0 > n || n >= l.Length() {
 		return "", errors.New("INTERGER OUT OF BOUNDS")
 	}
@@ -92,7 +109,7 @@ func (l *LinkedList) Get(n int) (string, error) {
 	return current.data, nil
 }
 
-func (l *LinkedList) Exists(s string) bool {
+func (l *LinkedList) Exists(s interface{}) bool {
 	current := l.head
 	for current != nil {
 		if current.data == s {
@@ -113,11 +130,18 @@ func (l *LinkedList) Length() int {
 	return count
 }
 
-func (l *LinkedList) GetArray() []string {
-	var rArray []string
+func (l *LinkedList) GetArray() []interface{} {
+	var rArray []interface{}
 	for i := 0; i < l.Length(); i++ {
 		item, _ := l.Get(i)
 		rArray = append(rArray, item)
 	}
 	return rArray
+}
+
+// DOESNT WORK
+func (l *LinkedList) AddArray(arr []interface{}) {
+	for i := 0; i < len(arr); i++ {
+		l.Append(arr[i])
+	}
 }
