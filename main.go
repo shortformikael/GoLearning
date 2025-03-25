@@ -23,9 +23,11 @@ func main() {
 func Run() {
 	for {
 		fmt.Printf("Current Status: %s \n", menu.Status)
+		if string(menu.Status) == "EXIT" {
+			break
+		}
 		menu.Print()
 		SelectChoice(Choose())
-		break
 	}
 }
 
@@ -33,15 +35,27 @@ func Choose() interface{} {
 	input := ReadStdInput()
 	num, err := strconv.Atoi(input)
 	if err != nil {
-		return input
+		return strings.ToUpper(input)
+	} else if 1 <= num && num <= len(menu.Items) {
+		return num
 	}
-	return num
+	return "Out of bounds ERROR" // Return invalid input
 }
 
 func SelectChoice(pChoice interface{}) {
 	pType := reflect.TypeOf(pChoice).Kind()
 	if pType == reflect.Int || pType == reflect.String {
-		//Exec Slection
+		switch pChoice := pChoice.(type) {
+		case int:
+			menu.Status = menu.Items[pChoice-1]
+		case string:
+			for item := range menu.Items {
+				if string(menu.Items[item]) == pChoice {
+					menu.Status = menu.Items[item]
+				}
+			}
+
+		}
 	}
 }
 

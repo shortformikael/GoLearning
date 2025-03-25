@@ -11,7 +11,7 @@ type Menu struct {
 
 func (m Menu) Print() {
 	for i := 0; i < len(m.Items); i++ {
-		fmt.Printf("%d: %s \n", i, m.Items[i])
+		fmt.Printf("%d: %s \n", i+1, m.Items[i])
 	}
 }
 
