@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"models"
+	"github.com/shortformikael/GoLearning/models"
 )
 
 var reader *bufio.Reader = bufio.NewReader(os.Stdin)
