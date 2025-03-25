@@ -7,33 +7,12 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"./models"
 )
-
-type MenuOption string
-
-const (
-	Start  MenuOption = "START"
-	Add    MenuOption = "ADD"
-	Delete MenuOption = "DELETE"
-	View   MenuOption = "VIEW"
-)
-
-type Menu struct {
-	Status MenuOption
-	Items  [5]MenuOption
-}
-
-func (m Menu) Print() {
-	for i := 0; i < len(m.Items); i++ {
-		fmt.Printf("%d: %s \n", i, m.Items[i])
-	}
-}
 
 var reader *bufio.Reader = bufio.NewReader(os.Stdin)
-var menu = Menu{
-	Status: Start,
-	Items:  [5]MenuOption{Start, Add, Delete, View, "EXIT"},
-}
+var menu *models.Menu = models.NewMenu()
 
 func main() {
 	fmt.Println("=== START ===")
