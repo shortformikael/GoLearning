@@ -4,21 +4,21 @@ import (
 	"fmt"
 )
 
-type Menu struct {
-	Status MenuOption
-	Items  [5]MenuOption
+type menu struct {
+	Status menuOption
+	Items  [5]menuOption
 }
 
-func (m Menu) Print() {
+func (m menu) Print() {
 	for i := 0; i < len(m.Items); i++ {
 		fmt.Printf("%d: %s \n", i, m.Items[i])
 	}
 }
 
-func NewMenu() *Menu {
-	return &Menu{
+func NewMenu() *menu {
+	return &menu{
 		Status: Start,
-		Items: [5]MenuOption{
+		Items: [5]menuOption{
 			Start,
 			Add,
 			Delete,

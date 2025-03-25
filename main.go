@@ -8,19 +8,19 @@ import (
 	"strconv"
 	"strings"
 
-	"./models"
+	"models"
 )
 
 var reader *bufio.Reader = bufio.NewReader(os.Stdin)
-var menu *models.Menu = models.NewMenu()
+var menu *models.menu = models.NewMenu()
 
 func main() {
 	fmt.Println("=== START ===")
-	run()
+	Run()
 	fmt.Println("=== END ===")
 }
 
-func run() {
+func Run() {
 	for {
 		fmt.Printf("Current Status: %s \n", menu.Status)
 		menu.Print()
