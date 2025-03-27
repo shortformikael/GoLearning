@@ -45,7 +45,6 @@ func (l *LinkedList) Print() {
 }
 
 func (l *LinkedList) PrintList() {
-	count := 1
 	current := l.head
 	for current != nil {
 		//fmt.Println(reflect.TypeOf(current.data))
@@ -53,15 +52,13 @@ func (l *LinkedList) PrintList() {
 		case string:
 			fmt.Printf(" - %s \n", c)
 		case *Menu:
-			fmt.Printf(" -> %d. %s \n", count, c.Name)
-			count++
+			fmt.Printf("  *  %s \n", c.Name)
 		case *MenuItem:
-			fmt.Printf(" -> %d. %s \n", count, c.Name)
-			count++
+			fmt.Printf("  *  %s \n", c.Name)
 		case *LinkedList:
 			c.PrintList()
 		default:
-			fmt.Printf(" - Unknown \n", count)
+			fmt.Printf(" - Unknown \n")
 		}
 		current = current.next
 	}
@@ -102,7 +99,7 @@ func (l *LinkedList) DeleteAt(n int) error {
 	return nil
 }
 
-func (l *LinkedList) GetAt(n int) (interface{}, error) {
+func (l *LinkedList) Get(n int) (interface{}, error) {
 	if 0 > n || n >= l.Length() {
 		return "", errors.New("INTERGER OUT OF BOUNDS")
 	}
@@ -115,7 +112,7 @@ func (l *LinkedList) GetAt(n int) (interface{}, error) {
 	return current.data, nil
 }
 
-func (l *LinkedList) Get(data string) (interface{}, error) {
+func (l *LinkedList) Search(data string) (interface{}, error) {
 	current := l.head
 	for current != nil {
 		switch i := current.data.(type) {

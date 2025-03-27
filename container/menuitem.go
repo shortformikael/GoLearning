@@ -1,5 +1,6 @@
 package container
 
 type MenuItem struct {
-	Name string
+	Name   string
+	Action func()
 }
