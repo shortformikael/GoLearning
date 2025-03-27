@@ -6,21 +6,21 @@ import (
 )
 
 type TreeGraph struct {
-	head *TreeNode
+	Head *TreeNode
 }
 
 func (g *TreeGraph) Search(s any) (*TreeNode, error) {
-	if g.head == nil {
+	if g.Head == nil {
 		return nil, errors.New("EMPTY TREE")
-	} else if g.head.children != nil {
-		if g.head.value == s {
-			return g.head, nil
+	} else if g.Head.Children == nil {
+		if g.Head.Value == s {
+			return g.Head, nil
 		} else {
 			return nil, errors.New("VALUE DOES NOT EXIST IN TREE")
 		}
 	}
 
-	current := &g.head.children[0]
+	current := &g.Head.Children[0]
 	result := g.dfsSearch(*current, &s)
 
 	if result != nil {
@@ -32,10 +32,10 @@ func (g *TreeGraph) Search(s any) (*TreeNode, error) {
 }
 
 func (g *TreeGraph) dfsSearch(current *TreeNode, s *any) *TreeNode {
-	for _, child := range current.children {
-		if child.value == s {
+	for _, child := range current.Children {
+		if child.Value == s {
 			return child
-		} else if child.children != nil {
+		} else if child.Children != nil {
 			return g.dfsSearch(child, s)
 		}
 	}
@@ -43,33 +43,44 @@ func (g *TreeGraph) dfsSearch(current *TreeNode, s *any) *TreeNode {
 }
 
 func (g *TreeNode) DfsPrintTraversal() {
-	fmt.Println("Node Value: ", g.value)
-	for i := 0; i < len(g.children); i++ {
-		g.DfsPrintTraversal()
+	fmt.Println("Node Value: ", g.Value)
+	for i := 0; i < len(g.Children); i++ {
+		g.Children[i].DfsPrintTraversal()
 	}
 }
 
 type TreeNode struct {
-	value    any
-	children []*TreeNode
+	Value    any
+	Children []*TreeNode
 }
 
 func (n *TreeNode) AddChild(child *TreeNode) {
-	n.children = append(n.children, child)
+	n.Children = append(n.Children, child)
 }
 
 func (n *TreeNode) Get(i int) (*TreeNode, error) {
-	if i < 0 || len(n.children) < i {
+	if i < 0 || len(n.Children) < i {
 		return nil, errors.New("OUT OF BOUNDS")
 	}
-	return n.children[i], nil
+	return n.Children[i], nil
 }
 
 func (n *TreeNode) SearchChildren(child any) (*TreeNode, error) {
-	for i := 0; i < len(n.children); i++ {
-		if child == n.children[i].value {
-			return n.children[i], nil
+	for i := 0; i < len(n.Children); i++ {
+		if child == n.Children[i].Value {
+			return n.Children[i], nil
 		}
 	}
 	return nil, errors.New("DOES NOT EXIST IN ARRAY")
+}
+
+func (n *TreeNode) String() string {
+	switch s := n.Value.(type) {
+	case string:
+		return s
+	case MenuItem:
+		return s.Name
+	default:
+		return "NO STRING AVAILABLE"
+	}
 }

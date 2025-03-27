@@ -2,13 +2,13 @@ package draw
 
 import "fmt"
 
-var ch chan string = make(chan string)
+var Channel chan string = make(chan string)
 
 func Start() {
 	for {
 		draw()
-		msg := <-ch
-		fmt.Println(msg)
+		msg := <-Channel
+		fmt.Print(msg)
 	}
 }
 
