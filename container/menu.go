@@ -3,19 +3,36 @@ package container
 import "fmt"
 
 type Menu struct {
-	Name   string
-	Items  LinkedList
-	Parent *Menu
+	Items       *TreeGraph
+	Cursor      *int
+	Current     *TreeNode
+	Breadcrumbs *LinkedList
 }
 
-func NewMenu(s string, items LinkedList) *Menu {
+func NewMenu(pItems *TreeGraph) Menu {
+	var l *LinkedList = &LinkedList{}
+	l.Append(pItems.Head.Value)
 	return &Menu{
-		Name:  s,
-		Items: items,
+		Items:       pItems,
+		Cursor:      0,
+		Current:     pItems.Head,
+		Breadcrumbs: l,
 	}
 }
 
-func (m *Menu) Print() {
-	fmt.Println("==", m.Name, "==")
-	m.Items.PrintList()
+func (m *Menu) PrintCli() {
+	fmt.Println("")
+	// Breadcrumbs
+	for _, crumb := range m.Breadcrumbs.GetArray {
+		fmt.Print("> ", crumb, " ")
+	}
+	fmt.Print("\n")
+
+	for i := 0; i < len(m.current.Children); i++ {
+		if i == m.Pointer {
+			fmt.Println(" >[*]", m.current.Children[i])
+		} else {
+			fmt.Println("  [*]", m.current.Children[i])
+		}
+	}
 }

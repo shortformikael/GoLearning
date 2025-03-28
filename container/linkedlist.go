@@ -5,17 +5,17 @@ import (
 	"fmt"
 )
 
-type Node struct {
+type ListNode struct {
 	data interface{}
-	next *Node
+	next *ListNode
 }
 
 type LinkedList struct {
-	head *Node
+	head *ListNode
 }
 
 func (l *LinkedList) Append(data interface{}) {
-	newNode := &Node{data: data}
+	newNode := &ListNode{data: data}
 	if l.head == nil {
 		l.head = newNode
 		return
@@ -28,8 +28,31 @@ func (l *LinkedList) Append(data interface{}) {
 }
 
 func (l *LinkedList) Prepend(data interface{}) {
-	newNode := &Node{data: data, next: l.head}
+	newNode := &ListNode{data: data, next: l.head}
 	l.head = newNode
+}
+
+func (l *LinkedList) Pop() {
+	current := l.head
+	if current == nil {
+		return
+	} else if current.next == nil {
+		current = nil
+		return
+	}
+
+	previous := current
+	current = current.next
+	for current != nil {
+		if current.next == nil {
+			previous.next = nil
+			return
+		} else {
+			previous = current
+			current = current.next
+		}
+	}
+
 }
 
 func (l *LinkedList) Print() {
@@ -51,8 +74,6 @@ func (l *LinkedList) PrintList() {
 		switch c := current.data.(type) {
 		case string:
 			fmt.Printf(" - %s \n", c)
-		case *Menu:
-			fmt.Printf("  *  %s \n", c.Name)
 		case *MenuItem:
 			fmt.Printf("  *  %s \n", c.Name)
 		case *LinkedList:
@@ -118,10 +139,6 @@ func (l *LinkedList) Search(data string) (interface{}, error) {
 		switch i := current.data.(type) {
 		case string:
 			if i == data {
-				return i, nil
-			}
-		case *Menu:
-			if i.Name == data {
 				return i, nil
 			}
 		case *MenuItem:
