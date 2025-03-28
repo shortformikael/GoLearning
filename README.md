@@ -7,6 +7,7 @@ this repos purpose is to hold code that used for learning of GO.
 * Serialization (Item)
 * Menu Navigation
 * Menu Drawing (concurrency)
+* Gracefull shutdown
 
 # Future features
 
