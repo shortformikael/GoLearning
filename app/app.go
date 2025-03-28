@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/eiannone/keyboard"
 	"github.com/shortformikael/GoLearning/container"
@@ -13,9 +14,10 @@ import (
 
 type Engine struct {
 	Menu         *container.TreeGraph
+	cursor_menu  *cursor
+	current_menu *container.TreeNode
 	List         *container.LinkedList
 	Running      bool
-	current_menu *container.TreeNode
 	commandCh    chan string
 	sigCh        chan os.Signal
 	keyCh        chan keyboard.Key
@@ -38,6 +40,8 @@ func (e *Engine) Init() {
 	e.Running = false
 	e.current_menu = e.Menu.Head
 	e.commandCh = make(chan string) //Command Channel,
+	e.cursor_menu = &cursor{}
+	e.cursor_menu.SetMenu(e.current_menu)
 
 	if err := keyboard.Open(); err != nil {
 		fmt.Println("Error opening keyboard:", err)
@@ -53,7 +57,6 @@ func (e *Engine) Init() {
 
 func (e *Engine) Shutdown() {
 	fmt.Println("Shutting down engine...")
-	e.Running = false
 	os.Exit(1)
 }
 
@@ -102,11 +105,11 @@ func (e *Engine) commandListener(id int, wg *sync.WaitGroup) {
 		case <-e.sigCh:
 			fmt.Println("\nRecieved interrupt signal. Exiting...")
 			e.Shutdown()
-			return
+			break
 		case key, ok := <-e.keyCh:
 			if !ok {
 				fmt.Println("\nKeyboard channel closed. Exiting...")
-				go e.Shutdown()
+				e.Shutdown()
 				return
 			}
 
@@ -114,7 +117,27 @@ func (e *Engine) commandListener(id int, wg *sync.WaitGroup) {
 			case keyboard.KeyEsc:
 				fmt.Println("\nESC pressed. Exiting...")
 				e.Shutdown()
-				return
+
+			case keyboard.KeyArrowDown:
+				fmt.Println("[ARROW DOWN]")
+				e.cursor_menu.Next()
+				e.commandCh <- string(rune(key))
+			case keyboard.KeyArrowUp:
+				fmt.Println("[ARROW UP]")
+				e.cursor_menu.Previous()
+				e.commandCh <- string(rune(key))
+			case keyboard.KeyArrowLeft:
+				fmt.Println("[ARROW LEFT]")
+			case keyboard.KeyArrowRight:
+				fmt.Println("[ARROW RIGHT]")
+			case 13: // Enter
+				fmt.Println(e.cursor_menu.Select())
+			default:
+				if key >= 32 && key <= 126 {
+					fmt.Printf("Key: %c\n", key)
+				} else {
+					fmt.Printf("Special Key: %v\n", key)
+				}
 			}
 		}
 	}
@@ -125,10 +148,40 @@ func (e *Engine) displayListener(id int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fmt.Printf("Process %d Started\n", id)
 
-	for comm := <-e.commandCh; e.Running; {
-		e.printTreeNode(e.current_menu)
+	time.Sleep(1 * time.Second)
+
+	clearConsole()
+	e.printCliMenuChildren()
+
+	for e.Running {
+		comm := <-e.commandCh
+		clearConsole()
+		e.printCliMenuChildren()
 		fmt.Println("Command:", comm)
 	}
 
 	fmt.Printf("Process %d Ended\n", id)
+}
+
+func (e *Engine) printCliMenuChildren() {
+	fmt.Println("==", e.current_menu, "==")
+
+	for i := 0; i < len(e.current_menu.Children); i++ {
+		//fmt.Printf("  [*] %v \n", e.current_menu.Children[i].Value)
+		if e.cursor_menu.Compare(e.current_menu.Children[i]) {
+			fmt.Printf(" >[*] %v\n", e.current_menu.Children[i].Value)
+		} else {
+			fmt.Printf("  [*] %v \n", e.current_menu.Children[i].Value)
+		}
+
+	}
+}
+
+func clearConsole() {
+	fmt.Println(("\033[H\033[2J"))
+}
+
+func (e *Engine) selectNode(node *container.TreeNode) {
+	e.current_menu = node
+	e.cursor_menu.SetMenu(e.current_menu)
 }
