@@ -28,11 +28,33 @@ func (m *Menu) PrintCli() {
 	}
 	fmt.Print("\n")
 
-	for i := 0; i < len(m.current.Children); i++ {
+	for i := 0; i < len(m.Current.Children); i++ {
 		if i == m.Pointer {
-			fmt.Println(" >[*]", m.current.Children[i])
+			fmt.Println(" >[*]", m.Current.Children[i])
 		} else {
-			fmt.Println("  [*]", m.current.Children[i])
+			fmt.Println("  [*]", m.Current.Children[i])
 		}
 	}
+}
+
+func (m *Menu) Next() {
+	if m.Pointer+1 >= len(m.Current.Children) {
+		m.Pointer = 0
+	} else {
+		m.Pointer = m.Pointer + 1
+	}
+}
+
+func (m *Menu) Previous() {
+	if m.Pointer-1 < 0 {
+		m.Pointer = len(m.Current.Children)
+	} else {
+		m.Pointer = m.Pointer - 1
+	}
+}
+
+func (m *Menu) Select() {
+	m.Current = m.Current.Children[m.Pointer]
+	m.Breadcrumbs.Append(m.Current.Value) //????
+	m.Pointer = 0
 }
