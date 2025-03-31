@@ -42,18 +42,17 @@ func (g *TreeGraph) dfsSearch(current *TreeNode, s *any) *TreeNode {
 	return nil
 }
 
+type TreeNode struct {
+	Value    any
+	Children []*TreeNode
+}
+
 func (g *TreeNode) DfsPrintTraversal() {
 	fmt.Println("Node Value: ", g.Value)
 	for i := 0; i < len(g.Children); i++ {
 		g.Children[i].DfsPrintTraversal()
 	}
 }
-
-type TreeNode struct {
-	Value    any
-	Children []*TreeNode
-}
-
 func (n *TreeNode) AddChild(child *TreeNode) {
 	n.Children = append(n.Children, child)
 }

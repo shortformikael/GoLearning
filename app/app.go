@@ -13,36 +13,35 @@ import (
 )
 
 type Engine struct {
-	Menu         *container.TreeGraph
-	cursor_menu  *cursor
-	current_menu *container.TreeNode
-	List         *container.LinkedList
-	Running      bool
-	commandCh    chan string
-	sigCh        chan os.Signal
-	keyCh        chan keyboard.Key
-	wg           sync.WaitGroup
+	Menu *container.Menu
+	List *container.LinkedList
+
+	Running   bool
+	commandCh chan string
+	drawCh    chan string
+	sigCh     chan os.Signal
+	keyCh     chan keyboard.Key
+	wg        sync.WaitGroup
 }
 
 func (e *Engine) Start() {
 	fmt.Println("Starting Engine...")
 	e.Running = true
-	e.wg.Add(3)
+	e.wg.Add(4)
 	go e.keyboardListener(0, &e.wg)
 	go e.commandListener(1, &e.wg)
 	go e.displayListener(2, &e.wg)
+	go e.actionListener(3, &e.wg)
 
 	e.wg.Wait()
 	fmt.Println("All workers completed")
 }
 
-func (e *Engine) Init() {
+func (e *Engine) Init(tree *container.TreeGraph) {
 	e.Running = false
-	e.current_menu = e.Menu.Head
 	e.commandCh = make(chan string) //Command Channel,
-	e.cursor_menu = &cursor{}
-	e.cursor_menu.SetMenu(e.current_menu)
-
+	e.drawCh = make(chan string)
+	e.Menu = container.NewMenu(tree)
 	if err := keyboard.Open(); err != nil {
 		fmt.Println("Error opening keyboard:", err)
 		return
@@ -96,7 +95,7 @@ func (e *Engine) keyboardListener(id int, wg *sync.WaitGroup) {
 	fmt.Printf("Process %d Ended\n", id)
 }
 
-func (e *Engine) commandListener(id int, wg *sync.WaitGroup) {
+func (e *Engine) actionListener(id int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fmt.Printf("Process %d Started\n", id)
 
@@ -119,19 +118,17 @@ func (e *Engine) commandListener(id int, wg *sync.WaitGroup) {
 				e.Shutdown()
 
 			case keyboard.KeyArrowDown:
-				fmt.Println("[ARROW DOWN]")
-				e.cursor_menu.Next()
-				e.commandCh <- string(rune(key))
+				e.commandCh <- "NEXT"
 			case keyboard.KeyArrowUp:
-				fmt.Println("[ARROW UP]")
-				e.cursor_menu.Previous()
-				e.commandCh <- string(rune(key))
+				e.commandCh <- "PREVIOUS"
 			case keyboard.KeyArrowLeft:
 				fmt.Println("[ARROW LEFT]")
 			case keyboard.KeyArrowRight:
 				fmt.Println("[ARROW RIGHT]")
-			case 13: // Enter
-				fmt.Println(e.cursor_menu.Select())
+			case 13:
+				e.commandCh <- "SELECT"
+			case 8:
+				e.commandCh <- "BACK"
 			default:
 				if key >= 32 && key <= 126 {
 					fmt.Printf("Key: %c\n", key)
@@ -151,37 +148,49 @@ func (e *Engine) displayListener(id int, wg *sync.WaitGroup) {
 	time.Sleep(1 * time.Second)
 
 	clearConsole()
-	e.printCliMenuChildren()
+	e.Menu.PrintCli()
 
 	for e.Running {
-		comm := <-e.commandCh
+		comm := <-e.drawCh
 		clearConsole()
-		e.printCliMenuChildren()
-		fmt.Println("Command:", comm)
+		if e.Menu.Current.String() == "Main Menu" {
+			e.Menu.PrintCli()
+		} else {
+			e.Menu.PrintCliTitle()
+		}
+		fmt.Println("Message:", comm)
 	}
 
 	fmt.Printf("Process %d Ended\n", id)
 }
 
-func (e *Engine) printCliMenuChildren() {
-	fmt.Println("==", e.current_menu, "==")
+func (e *Engine) commandListener(id int, wg *sync.WaitGroup) {
+	defer wg.Done()
 
-	for i := 0; i < len(e.current_menu.Children); i++ {
-		//fmt.Printf("  [*] %v \n", e.current_menu.Children[i].Value)
-		if e.cursor_menu.Compare(e.current_menu.Children[i]) {
-			fmt.Printf(" >[*] %v\n", e.current_menu.Children[i].Value)
-		} else {
-			fmt.Printf("  [*] %v \n", e.current_menu.Children[i].Value)
+	fmt.Printf("Process %d Started\n", id)
+
+	for e.Running {
+		comm := <-e.commandCh
+		switch comm {
+		case "NEXT":
+			e.Menu.Next()
+		case "PREVIOUS":
+			e.Menu.Previous()
+		case "SELECT":
+			sel := e.Menu.Select()
+			if sel == "Exit" {
+				e.Shutdown()
+			} else {
+				e.drawCh <- sel
+			}
+			continue
+		case "BACK":
+			e.Menu.Back()
 		}
-
+		e.drawCh <- ""
 	}
 }
 
 func clearConsole() {
 	fmt.Println(("\033[H\033[2J"))
-}
-
-func (e *Engine) selectNode(node *container.TreeNode) {
-	e.current_menu = node
-	e.cursor_menu.SetMenu(e.current_menu)
 }
