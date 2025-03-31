@@ -172,14 +172,14 @@ func (l *LinkedList) Length() int {
 	return count
 }
 
-func (l *LinkedList) GetArray() []interface{} {
-	var rArray []interface{}
+func (l *LinkedList) GetArray() *[]any {
+	var rArray []any = []any{}
 	current := l.head
 	for current.data != nil {
 		rArray = append(rArray, current.data)
 		current = current.next
 	}
-	return rArray
+	return &rArray
 }
 
 // DOESNT WORK

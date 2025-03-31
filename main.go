@@ -17,15 +17,15 @@ func main() {
 
 func varInit() {
 	fmt.Println("Started Program Initialization...")
-	App.Menu = &container.TreeGraph{Head: &container.TreeNode{}}
+	menuTree := &container.TreeGraph{Head: &container.TreeNode{}}
 	App.List = &container.LinkedList{}
 
-	App.Menu.Head.Value = "Main Menu"
-	App.Menu.Head.AddChild(&container.TreeNode{Value: "View"})
-	App.Menu.Head.AddChild(&container.TreeNode{Value: "Settings"})
-	App.Menu.Head.AddChild(&container.TreeNode{Value: "Exit"})
+	menuTree.Head.Value = "Main Menu"
+	menuTree.Head.AddChild(&container.TreeNode{Value: "View"})
+	menuTree.Head.AddChild(&container.TreeNode{Value: "Settings"})
+	menuTree.Head.AddChild(&container.TreeNode{Value: "Exit"})
 
-	App.Init()
+	App.Init(menuTree)
 }
 
 func start() {

@@ -4,14 +4,15 @@ import "fmt"
 
 type Menu struct {
 	Items       *TreeGraph
-	Cursor      *int
+	Cursor      int
 	Current     *TreeNode
+	Before      *TreeNode
 	Breadcrumbs *LinkedList
 }
 
-func NewMenu(pItems *TreeGraph) Menu {
+func NewMenu(pItems *TreeGraph) *Menu {
 	var l *LinkedList = &LinkedList{}
-	l.Append(pItems.Head.Value)
+	l.Append(pItems.Head)
 	return &Menu{
 		Items:       pItems,
 		Cursor:      0,
@@ -21,15 +22,19 @@ func NewMenu(pItems *TreeGraph) Menu {
 }
 
 func (m *Menu) PrintCli() {
-	fmt.Println("")
+	fmt.Println("===", m.Current.Value, "===")
+
 	// Breadcrumbs
-	for _, crumb := range m.Breadcrumbs.GetArray {
-		fmt.Print("> ", crumb, " ")
-	}
-	fmt.Print("\n")
+	//bCrumbs := m.Breadcrumbs.GetArray()
+	//fmt.Println(bCrumbs)
+	/*
+		for _, crumb := range bCrumbs {
+			fmt.Print("> ", crumb, " ")
+		}*/
+	//fmt.Print("\n")
 
 	for i := 0; i < len(m.Current.Children); i++ {
-		if i == m.Pointer {
+		if i == m.Cursor {
 			fmt.Println(" >[*]", m.Current.Children[i])
 		} else {
 			fmt.Println("  [*]", m.Current.Children[i])
@@ -37,24 +42,38 @@ func (m *Menu) PrintCli() {
 	}
 }
 
+func (m *Menu) PrintCliTitle() {
+	fmt.Println("===", m.Current.Value, "===")
+}
+
 func (m *Menu) Next() {
-	if m.Pointer+1 >= len(m.Current.Children) {
-		m.Pointer = 0
+	if m.Cursor+1 >= len(m.Current.Children) {
+		m.Cursor = 0
 	} else {
-		m.Pointer = m.Pointer + 1
+		m.Cursor = m.Cursor + 1
 	}
 }
 
 func (m *Menu) Previous() {
-	if m.Pointer-1 < 0 {
-		m.Pointer = len(m.Current.Children)
+	if m.Cursor <= 0 {
+		m.Cursor = len(m.Current.Children) - 1
 	} else {
-		m.Pointer = m.Pointer - 1
+		m.Cursor = m.Cursor - 1
 	}
 }
 
-func (m *Menu) Select() {
-	m.Current = m.Current.Children[m.Pointer]
-	m.Breadcrumbs.Append(m.Current.Value) //????
-	m.Pointer = 0
+func (m *Menu) Select() string {
+	m.Before = m.Current
+	m.Current = m.Current.Children[m.Cursor]
+	m.Breadcrumbs.Append(m.Current) //????
+	m.Cursor = 0
+	return string(m.Current.String())
+}
+
+func (m *Menu) Back() {
+	if m.Before != nil {
+		m.Current = m.Before
+		m.Before = nil
+		m.Cursor = 0
+	}
 }
